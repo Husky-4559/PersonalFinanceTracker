@@ -2,10 +2,12 @@
 import { useLoaderData } from "react-router-dom";
 
 // helper functions
-import { fetchData } from "../helpers";
+import { createBudget, createExpense, fetchData, waait } from "../helpers";
 
 //components
 import Intro from "../components/Intro";
+import AddBudgetForm from "../components/AddBudgetForm";
+import AddExpenseForm from "../components/AddExpenseForm";
 
 //library imports
 import { toast } from "react-toastify";
@@ -13,24 +15,83 @@ import { toast } from "react-toastify";
 // loader
 export function dashboardLoader() {
 	const userName = fetchData("userName");
-	return { userName };
+	const budgets = fetchData("budgets");
+	return { userName, budgets };
 }
 
 //action
 export async function dashboardAction({ request }) {
+	await waait();
+
 	const data = await request.formData();
-	const formData = Object.fromEntries(data);
-	try {
-		localStorage.setItem("userName", JSON.stringify(formData.userName));
-		return toast.success(`Welcome, ${formData.userName}`);
-	} catch (e) {
-		throw new Error("There was a problem creating your account.");
+	const { _action, ...values } = Object.fromEntries(data);
+
+	//new user submission
+	if (_action === "newUser") {
+		try {
+			localStorage.setItem("userName", JSON.stringify(values.userName));
+			return toast.success(`Welcome, ${values.userName}`);
+		} catch (e) {
+			throw new Error("There was a problem creating your account.");
+		}
+	}
+
+	if (_action === "createBudget") {
+		try {
+			createBudget({
+				name: values.newBudget,
+				amount: values.newBudgetAmount,
+			});
+			return toast.success("Budget Created!");
+		} catch (e) {
+			throw new Error("There Was A Problem Creating Your Budget.");
+		}
+	}
+	if (_action === "createExpense") {
+		try {
+			createExpense({
+				name: values.newExpense,
+				amount: values.newExpenseAmount,
+				budgetId: values.newExpenseBudget,
+			});
+			return toast.success(`Expense ${values.newExpense} Created!`);
+		} catch (e) {
+			throw new Error("There Was A Problem Creating Your Expense.");
+		}
 	}
 }
 
 const Dashboard = () => {
-	const { userName } = useLoaderData();
-	return <>{userName ? <p>{userName}</p> : <Intro />}</>;
+	const { userName, budgets } = useLoaderData();
+	return (
+		<>
+			{userName ? (
+				<div className="dashboard">
+					<h1>
+						Welcome Back, <span className="accent">{userName}!</span>
+					</h1>
+					<div className="grid-sm">
+						{budgets && budgets.length > 0 ? (
+							<div className="gri-lg">
+								<div className="flex-lg">
+									<AddBudgetForm />
+									<AddExpenseForm budgets={budgets} />
+								</div>
+							</div>
+						) : (
+							<div className="grid-sm">
+								<p>Personal Budgeting Is The Key To Financial Freedom.</p>
+								<p>Create A Budget Today To Get Started!</p>
+								<AddBudgetForm />
+							</div>
+						)}
+					</div>
+				</div>
+			) : (
+				<Intro />
+			)}
+		</>
+	);
 };
 
 export default Dashboard;
