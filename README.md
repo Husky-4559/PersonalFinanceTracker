@@ -1,6 +1,6 @@
-Bloom Budget
+Budget Bloom
 
-Welcome to the Bloom Budget Application! This tool is designed to help you manage your finances by creating budgets and tracking expenses.
+Welcome to the Budget Bloom Application! This tool is designed to help you manage your finances by creating budgets and tracking expenses.
 
 Features
 
