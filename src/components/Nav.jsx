@@ -10,7 +10,7 @@ const Nav = ({ userName }) => {
 	return (
 		<nav>
 			<NavLink to="/" aria-label="Go To Home">
-				<img src={logomark} alt="" height={300} />
+				<img src={logomark} alt="" height={100} />
 				<br />
 				<h2>Budget Bloom</h2>
 			</NavLink>
